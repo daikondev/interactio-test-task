@@ -11,8 +11,12 @@
 | /events     | POST   | Creates a new event                    |
 | /events/:id | GET    | Returns the event with the given id.   |
 
-_For the events/:id table, you may specify the desired audio and video quality.
+_For the events/:id table, you may specify the desired audio and video quality
+using the videoQuality and audioQuality query strings.
 If they are not specified, it will return the quality specified by the server defaults._
+
+_To access information about an event through events/:id, you must pass an email address which
+is in the invitees for the event._
 
 ##### How to start the server: 
 
