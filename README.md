@@ -28,6 +28,7 @@ is in the invitees for the event._
 ##### Server defaults: 
 
 - Max Invitees: the maximum number of invitees an event can have. Default value is 100 invitees. To change this setting, use the ```-m``` flag with the number of invitees you wish to specify.
-- Default Video Quality: the 
+- Default Video Quality: the default video quality served to clients. Default value is 720p. To change this setting, use the ```-v``` flag with the new default quality.
+- Default Audio Quality: the default audio quality served to clients. Default value is mid. To change this setting, use the ```-a``` flag with the new default quality.
 
 Created by Alex Kalpakidis
