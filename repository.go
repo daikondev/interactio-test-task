@@ -93,7 +93,6 @@ type eventsResponse struct {
 
 // eventQueryStringFields is a struct used to store and access the query string data internally.
 type eventQueryStringFields struct {
-	Email        string `json:"Email" query:"email"`
 	VideoQuality string `json:"VideoQuality" query:"videoQuality"`
 	AudioQuality string `json:"AudioQuality" query:"audioQuality"`
 }
@@ -362,22 +361,4 @@ func (r *Repo) getAllEvents() ([]eventsResponse, error) {
 		all = append(all, event)
 	}
 	return all, nil
-}
-
-// Helper function for validating a user's email is in the invitee list
-func (r *Repo) checkIfInvited(userEmail string, eventID int64) (bool, error) {
-	inviteeRows, err := r.db.Query("SELECT Email FROM event_invitees WHERE event_id = ?", eventID)
-	if err != nil {
-		return false, err
-	}
-	for inviteeRows.Next() {
-		var invitee string
-		if err := inviteeRows.Scan(&invitee); err != nil {
-			return false, err
-		}
-		if invitee == userEmail {
-			return true, nil
-		}
-	}
-	return false, nil
 }

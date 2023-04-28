@@ -48,13 +48,3 @@ func validateInvitees(invitees []string) error {
 	}
 	return nil
 }
-
-// validateUserIsInvited is used to validate if a user's email is in the invitee list, in order to be granted access
-// to the event details
-func validateUserIsInvited(userEmail string, eventID int64) (bool, error) {
-	userIsInvited, err := EventRepo.checkIfInvited(userEmail, eventID)
-	if err != nil {
-		return false, err
-	}
-	return userIsInvited, nil
-}
