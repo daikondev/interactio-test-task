@@ -6,6 +6,16 @@ import (
 	"strconv"
 )
 
+// Errors
+
+var (
+	errBadRequest          = echo.NewHTTPError(http.StatusBadRequest, "Bad Request")
+	errInvalidID           = echo.NewHTTPError(http.StatusBadRequest, "invalid event id")
+	errUserNotInvited      = echo.NewHTTPError(http.StatusBadRequest, "user is not invited to this event")
+	errNotFound            = echo.NewHTTPError(http.StatusNotFound, "Event Not Found")
+	errInternalServerError = echo.NewHTTPError(http.StatusInternalServerError, "Internal Server Error")
+)
+
 // Handlers
 
 func handleHello(c echo.Context) error {
@@ -73,14 +83,3 @@ func handleGetAllEvents(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, all)
 }
-
-// Errors
-
-var (
-	errBadRequest          = echo.NewHTTPError(http.StatusBadRequest, "Bad Request")
-	errInvalidID           = echo.NewHTTPError(http.StatusBadRequest, "invalid event id")
-	errUserNotInvited      = echo.NewHTTPError(http.StatusBadRequest, "user is not invited to this event")
-	errNotFound            = echo.NewHTTPError(http.StatusNotFound, "Event Not Found")
-	errInternalServerError = echo.NewHTTPError(http.StatusInternalServerError, "Internal Server Error")
-	// errImATeapot           = echo.NewHTTPError(http.StatusTeapot, "Hello!")
-)
