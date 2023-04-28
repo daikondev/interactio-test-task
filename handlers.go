@@ -22,6 +22,10 @@ func handleHello(c echo.Context) error {
 }
 
 func handleEventCreate(c echo.Context) error {
+	header := c.Request().Header.Get("Content-Type")
+	if header != "application/json" {
+		return errBadRequest
+	}
 	ev := event{}
 	if err := c.Bind(&ev); err != nil {
 		return err
