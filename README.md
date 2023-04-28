@@ -22,11 +22,12 @@ is in the invitees for the event._
 
 ---
 
-The server should be started with ```go build```. When running ```go run test-task```, you may
-specify the following flags:
--  ```-p```: allows the user to specify the port the server listens to
--  ```-m```: allows the user to specify the maximum number of invitees an event can have
--  ```-v```: allows the user to specify the default video quality served to clients
--  ```-a```: allows the user to specify the default audio quality served to clients
+1. Run the ```Go build``` command.
+2. Start the server with ```Go run test-task```.
+
+##### Server defaults: 
+
+- Max Invitees: the maximum number of invitees an event can have. Default value is 100 invitees. To change this setting, use the ```-m``` flag with the number of invitees you wish to specify.
+- Default Video Quality: the 
 
 Created by Alex Kalpakidis
