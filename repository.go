@@ -24,12 +24,12 @@ func migrate(db *sql.DB) error {
 	    language TEXT NOT NULL,
 	    FOREIGN KEY(event_id) REFERENCES events(id)
 	);
-	CREATE TABLE IF NOT EXISTS event_vid_quality(
+	CREATE TABLE IF NOT EXISTS event_video_quality(
 	    event_id INTEGER,
 	    quality TEXT NOT NULL,
 		FOREIGN KEY(event_id) REFERENCES events(id)
 	);
-	CREATE TABLE IF NOT EXISTS event_aud_quality(
+	CREATE TABLE IF NOT EXISTS event_audio_quality(
 	    event_id INTEGER,
 	    quality TEXT NOT NULL,
 	    FOREIGN KEY(event_id) REFERENCES events(id)
@@ -126,73 +126,6 @@ func newRepo(db *sql.DB) *Repo {
 	return EventRepo
 }
 
-// Helper functions which create entries into the corresponding database tables.
-
-func (r *Repo) createEvent(name, date, description string) (int64, error) {
-	res, err := r.db.Exec("INSERT INTO events(name, date, description) VALUES (?, ? ,?)", name, date, description)
-	if err != nil {
-		err := fmt.Errorf("error inserting into events table: %w\n", err)
-		return 0, err
-	}
-	return res.LastInsertId()
-}
-
-func (r *Repo) createEventLang(id int64, languages []string) error {
-	stmt, err := r.db.Prepare("INSERT INTO event_lang(event_id, language) VALUES (?, ?)")
-	if err != nil {
-		return err
-	}
-	for _, l := range languages {
-		_, err := stmt.Exec(id, l)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (r *Repo) createEventVideoQuality(id int64, quality []string) error {
-	stmt, err := r.db.Prepare("INSERT INTO event_vid_quality(event_id, quality) VALUES (?, ?)")
-	if err != nil {
-		return err
-	}
-	for _, q := range quality {
-		_, err := stmt.Exec(id, q)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (r *Repo) createEventAudioQuality(id int64, quality []string) error {
-	stmt, err := r.db.Prepare("INSERT INTO event_aud_quality(event_id, quality) VALUES (?, ?)")
-	if err != nil {
-		return err
-	}
-	for _, q := range quality {
-		_, err := stmt.Exec(id, q)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (r *Repo) createEventInvitees(id int64, invitees []string) error {
-	stmt, err := r.db.Prepare("INSERT INTO event_invitees(event_id, Email) VALUES (?, ?)")
-	if err != nil {
-		return err
-	}
-	for _, i := range invitees {
-		_, err := stmt.Exec(id, i)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // create an event
 func (r *Repo) create(ev event) (*event, error) {
 	id, err := r.createEvent(ev.Name, ev.Date, ev.Description)
@@ -202,7 +135,6 @@ func (r *Repo) create(ev event) (*event, error) {
 	ev.Id = id
 	wg := sync.WaitGroup{}
 	wg.Add(1)
-	// TODO: remove panics!!!!!
 	go func(id int64, languages []string) {
 		defer wg.Done()
 		err := r.createEventLang(id, languages)
@@ -238,6 +170,73 @@ func (r *Repo) create(ev event) (*event, error) {
 	return &ev, nil
 }
 
+// Helper functions which create entries into the corresponding database tables.
+
+func (r *Repo) createEvent(name, date, description string) (int64, error) {
+	res, err := r.db.Exec("INSERT INTO events(name, date, description) VALUES (?, ? ,?)", name, date, description)
+	if err != nil {
+		err := fmt.Errorf("error inserting into events table: %w\n", err)
+		return 0, err
+	}
+	return res.LastInsertId()
+}
+
+func (r *Repo) createEventLang(id int64, languages []string) error {
+	stmt, err := r.db.Prepare("INSERT INTO event_lang(event_id, language) VALUES (?, ?)")
+	if err != nil {
+		return err
+	}
+	for _, l := range languages {
+		_, err := stmt.Exec(id, l)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (r *Repo) createEventVideoQuality(id int64, quality []string) error {
+	stmt, err := r.db.Prepare("INSERT INTO event_video_quality(event_id, quality) VALUES (?, ?)")
+	if err != nil {
+		return err
+	}
+	for _, q := range quality {
+		_, err := stmt.Exec(id, q)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (r *Repo) createEventAudioQuality(id int64, quality []string) error {
+	stmt, err := r.db.Prepare("INSERT INTO event_audio_quality(event_id, quality) VALUES (?, ?)")
+	if err != nil {
+		return err
+	}
+	for _, q := range quality {
+		_, err := stmt.Exec(id, q)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (r *Repo) createEventInvitees(id int64, invitees []string) error {
+	stmt, err := r.db.Prepare("INSERT INTO event_invitees(event_id, Email) VALUES (?, ?)")
+	if err != nil {
+		return err
+	}
+	for _, i := range invitees {
+		_, err := stmt.Exec(id, i)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Get an event
 func (r *Repo) getOneEvent(id int64, qs eventQueryStringFields) (*eventResponse, error) {
 	row := r.db.QueryRow("SELECT id, name, date, description FROM events WHERE id = ?", id)
@@ -262,7 +261,7 @@ func (r *Repo) getOneEvent(id int64, qs eventQueryStringFields) (*eventResponse,
 	}
 
 	// Get event video and audio quality
-	videoRows, err := r.db.Query("SELECT quality FROM event_vid_quality WHERE event_id = ? ", id)
+	videoRows, err := r.db.Query("SELECT quality FROM event_video_quality WHERE event_id = ? ", id)
 	if err != nil {
 		return nil, err
 	}
@@ -282,7 +281,7 @@ func (r *Repo) getOneEvent(id int64, qs eventQueryStringFields) (*eventResponse,
 	if res.VideoQuality == "" {
 		res.VideoQuality = defaultVideoQuality
 	}
-	audioRows, err := r.db.Query("SELECT quality FROM event_aud_quality WHERE event_id = ?", id)
+	audioRows, err := r.db.Query("SELECT quality FROM event_audio_quality WHERE event_id = ?", id)
 	if err != nil {
 		return nil, err
 	}
@@ -334,7 +333,7 @@ func (r *Repo) getAllEvents() ([]eventsResponse, error) {
 			event.Languages = append(event.Languages, language)
 		}
 		// Get event audio and video quality
-		audioRows, err := r.db.Query("SELECT quality FROM event_aud_quality WHERE event_id = ?", event.Id)
+		audioRows, err := r.db.Query("SELECT quality FROM event_audio_quality WHERE event_id = ?", event.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -346,7 +345,7 @@ func (r *Repo) getAllEvents() ([]eventsResponse, error) {
 			}
 			event.AudioQuality = append(event.AudioQuality, audioq)
 		}
-		videoRows, err := r.db.Query("SELECT quality FROM event_vid_quality WHERE event_id = ? ", event.Id)
+		videoRows, err := r.db.Query("SELECT quality FROM event_video_quality WHERE event_id = ? ", event.Id)
 		if err != nil {
 			return nil, err
 		}
