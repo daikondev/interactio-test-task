@@ -11,6 +11,11 @@ type customValidator struct {
 	validator *validator.Validate
 }
 
+var (
+	dateRegex  = regexp.MustCompile(`\d{4}(.\d{2}){2}(\s|T)(\d{2}.){2}\d{2}`)
+	emailRegex = regexp.MustCompile(`^(?P<local>[a-zA-Z0-9.!#$%&'*+/=?^_\x60{|}~-]+)@(?P<domain>[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)$`)
+)
+
 func (cv *customValidator) Validate(i interface{}) error {
 	if err := cv.validator.Struct(i); err != nil {
 		return err
@@ -20,10 +25,6 @@ func (cv *customValidator) Validate(i interface{}) error {
 
 // validateDate ensures the date passed in the request adheres to the ISO 8601 format
 func validateDate(date string) error {
-	dateRegex, err := regexp.Compile(`\d{4}(.\d{2}){2}(\s|T)(\d{2}.){2}\d{2}`)
-	if err != nil {
-		return err
-	}
 	if !dateRegex.MatchString(date) {
 		return errors.New("incorrect datetime format")
 	}
@@ -32,11 +33,6 @@ func validateDate(date string) error {
 
 // validateInvitees ensures the number of invitees specified in the request does not exceed the specified maximum
 func validateInvitees(invitees []string) error {
-	// emailRegex taken from go-playground/validator
-	emailRegex, err := regexp.Compile(`^(?P<local>[a-zA-Z0-9.!#$%&'*+/=?^_\x60{|}~-]+)@(?P<domain>[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)$`)
-	if err != nil {
-		return err
-	}
 	if len(invitees) > maxInvitees {
 		err := fmt.Errorf(`
 	invitees exceed capacity\n
@@ -60,8 +56,5 @@ func validateUserIsInvited(userEmail string, eventID int64) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if !userIsInvited {
-		return false, nil
-	}
-	return true, nil
+	return userIsInvited, nil
 }
